@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 EstoqueFácil - Controle Inteligente de Materiais</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230072CE' d='M20 6h-3V4c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm11 15H4V8h16v11zm-5.75-9l-3.5 3.5-1.75-1.75L7.5 13.25 10.25 16 16.5 9.75z'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="app-container">
+        <div id="auth-screen" class="screen-container">
+            <div class="auth-card">
+                <h2 id="auth-title" class="text-blue-800 mb-6">Login</h2>
+                <input type="email" id="auth-email" placeholder="E-mail">
+                <input type="password" id="auth-password" placeholder="Senha">
+                <button id="auth-button" class="confirm-button" onclick="handleAuth()">Entrar</button>
+                <button id="toggle-auth-mode" class="link-button" onclick="toggleAuthMode()">Não tem uma conta? Registre-se</button>
+                <p id="auth-message" class="error-message"></p>
+            </div>
+        </div>
+
+        <div id="main-dashboard" class="screen-container oculto">
+            <header class="app-header">
+                <div class="logo-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" fill="#0072CE"><path d="M20 6h-3V4c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm11 15H4V8h16v11zm-5.75-9l-3.5 3.5-1.75-1.75L7.5 13.25 10.25 16 16.5 9.75z"/></svg>
+                    <span class="logo-text">EstoqueFácil</span>
+                </div>
+                <nav class="app-nav">
+                    <span id="user-info" class="user-display"></span>
+                    <button id="ajustes-button" class="nav-button admin-button oculto" onclick="showDashboard()">
+                        <i class="fas fa-cog"></i> Ajustes
+                    </button>
+                    <button class="nav-button logout-button" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                </nav>
+            </header>
+
+            <main class="app-main">
+                <div id="admin-panel" class="dashboard-panel oculto">
+                    <h2 class="panel-title">Painel do Administrador</h2>
+                    <div class="grid-container">
+                        <div class="dashboard-card" onclick="showAdminCatalog()">
+                            <i class="fas fa-boxes icon-large text-blue-700"></i>
+                            <h3>Gerenciar Catálogo</h3>
+                            <p>Adicionar, editar e remover itens do estoque.</p>
+                        </div>
+                        <div class="dashboard-card" onclick="showAdminReports()">
+                            <i class="fas fa-chart-line icon-large text-green-700"></i>
+                            <h3>Ver Relatórios</h3>
+                            <p>Acessar relatórios detalhados e gráficos.</p>
+                        </div>
+                        <div class="dashboard-card" onclick="showUserManagement()">
+                            <i class="fas fa-users-cog icon-large text-yellow-700"></i>
+                            <h3>Gerenciar Usuários</h3>
+                            <p>Adicionar, remover e gerenciar permissões de usuários.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="employee-panel" class="dashboard-panel oculto">
+                    <h2 class="panel-title">Painel do Funcionário</h2>
+                    <div class="grid-container">
+                        <div class="dashboard-card" onclick="abrirFormulario('saida')">
+                            <i class="fas fa-arrow-alt-from-left icon-large text-purple-700"></i>
+                            <h3>Registrar Saída</h3>
+                            <p>Registrar a retirada de itens do estoque.</p>
+                        </div>
+                        <div class="dashboard-card" onclick="abrirFormulario('entrada')">
+                            <i class="fas fa-arrow-alt-to-right icon-large text-indigo-700"></i>
+                            <h3>Registrar Entrada</h3>
+                            <p>Registrar a entrada de novos itens.</p>
+                        </div>
+                        <div class="dashboard-card" onclick="exibirCatalogo()">
+                            <i class="fas fa-search icon-large text-teal-700"></i>
+                            <h3>Consultar Catálogo</h3>
+                            <p>Visualizar a disponibilidade dos itens no estoque.</p>
+                        </div>
+                        <div class="dashboard-card" onclick="alternarGrafico()">
+                            <i class="fas fa-chart-bar icon-large text-orange-700"></i>
+                            <h3>Gráfico Estoque</h3>
+                            <p>Ver o estoque atual por item.</p>
+                        </div>
+                        <div class="dashboard-card" onclick="exportarCSV()">
+                            <i class="fas fa-file-csv icon-large text-gray-700"></i>
+                            <h3>Exportar CSV</h3>
+                            <p>Gerar relatório de movimentações recentes.</p>
+                        </div>
+                        <div class="dashboard-card" onclick="showFeedbackModal()">
+                            <i class="fas fa-comment-dots icon-large text-pink-700"></i>
+                            <h3>Enviar Feedback</h3>
+                            <p>Envie sugestões ou reporte problemas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="movimentacoes-section" class="content-card oculto">
+                    <button class="back-button" onclick="showDashboard()"><i class="fas fa-arrow-left"></i> Voltar ao Painel</button>
+                    <h2>Movimentações Recentes</h2>
+                    <div class="search-bar">
+                        <input type="text" id="busca" placeholder="Buscar por SKU, Nome, Tipo, Usuário..." onkeyup="filtrar()">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="tabela" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>SKU</th>
+                                    <th>Nome do Produto</th>
+                                    <th>Qtd</th>
+                                    <th>Data</th>
+                                    <th>Usuário</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movimentos">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="catalogo-section" class="content-card oculto">
+                    <button class="back-button" onclick="showDashboard()"><i class="fas fa-arrow-left"></i> Voltar ao Painel</button>
+                    <h2>📋 Catálogo de Itens</h2>
+                    <div class="search-bar"> <input type="text" id="buscaCatalogo" placeholder="Buscar por SKU, Nome..." onkeyup="filtrarCatalogo()">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="catalogo-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Nome</th>
+                                    <th>Quantidade Atual</th>
+                                    <th>Status</th>
+                                    <th>Última Atualização</th>
+                                    <th id="catalog-actions-header" class="oculto">Ações</th> </tr>
+                            </thead>
+                            <tbody id="listaCatalogo">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="grafico-section" class="content-card oculto">
+                    <button class="back-button" onclick="showDashboard()"><i class="fas fa-arrow-left"></i> Voltar ao Painel</button>
+                    <h2>📊 Estoque Atual por Item</h2>
+                    <div class="chart-container">
+                        <canvas id="estoqueChart"></canvas>
+                    </div>
+                    <div class="grafico-legend">
+                        <p><span class="legenda-ok">Estoque OK</span><span class="legenda-baixo">Estoque Baixo</span></p>
+                    </div>
+                </section>
+
+                <section id="user-management-section" class="content-card oculto">
+                    <button class="back-button" onclick="showDashboard()"><i class="fas fa-arrow-left"></i> Voltar ao Painel</button>
+                    <h2>👥 Gerenciar Usuários</h2>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Usuários do Sistema</h3>
+                    <div class="user-add-form mb-6">
+                        <input type="email" id="newUserEmail" placeholder="Novo E-mail do Usuário" class="p-2 border rounded-md w-full md:w-1/2 mr-2">
+                        <select id="newUserRole" class="p-2 border rounded-md">
+                            <option value="employee">Funcionário</option>
+                            <option value="admin">Ajustes</option> </select>
+                        <button class="confirm-button ml-2" onclick="registerNewUser()">Adicionar Usuário</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="users-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>E-mail</th>
+                                    <th>Papel</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaUsuarios">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="admin-reports-section" class="content-card oculto">
+                    <button class="back-button" onclick="showDashboard()"><i class="fas fa-arrow-left"></i> Voltar ao Painel</button>
+                    <h2>📈 Relatórios Detalhados</h2>
+                    <p class="text-center text-gray-600 text-lg">Esta seção exibirá relatórios detalhados e gráficos analíticos sobre as movimentações de estoque.</p>
+                    <p class="text-center text-gray-500 mt-2">Funcionalidade em desenvolvimento...</p>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="formulario" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="fecharFormulario()">&times;</span>
+            <h2 id="titulo-form"></h2>
+            <input type="text" id="sku" placeholder="SKU do item (ex: MAT-001)">
+            <input type="number" id="qtd" placeholder="Quantidade" min="1">
+            <input type="email" id="email" placeholder="Seu e-mail">
+            <div class="button-group">
+                <button class="confirm-button" onclick="registrarMovimentacao()">Confirmar</button>
+                <button class="cancel-button" onclick="fecharFormulario()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addItem" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="fecharAddItem()">&times;</span>
+            <h2>➕ Adicionar Novo Item</h2>
+            <input type="text" id="novoSKU" placeholder="SKU (ex: MAT-001)">
+            <input type="text" id="novoNome" placeholder="Nome do item (ex: Caneta Esferográfica)">
+            <input type="number" id="novaQtd" placeholder="Quantidade inicial" min="0">
+            <div class="button-group">
+                <button class="confirm-button" onclick="adicionarItem()">Adicionar</button>
+                <button class="cancel-button" onclick="fecharAddItem()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="itemDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="fecharItemDetails()">&times;</span>
+            <h2 class="text-blue-800 mb-4">Detalhes do Item</h2>
+            <div class="item-details-content">
+                <p><strong>SKU:</strong> <span id="detailSKU"></span></p>
+                <p><strong>Nome:</strong> <span id="detailName"></span></p>
+                <p><strong>Quantidade Atual:</strong> <span id="detailQuantity"></span></p>
+                <p><strong>Última Atualização:</strong> <span id="detailLastUpdated"></span></p>
+                <p><strong>Atualizado por:</strong> <span id="detailUpdatedBy"></span></p>
+            </div>
+            <button class="confirm-button mt-6" onclick="fecharItemDetails()">Fechar</button>
+        </div>
+    </div>
+
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="fecharFeedbackModal()">&times;</span>
+            <h2>💬 Enviar Feedback / Sugestão</h2>
+            <textarea id="feedbackText" placeholder="Digite seu feedback ou sugestão aqui..." rows="6"></textarea>
+            <div class="button-group">
+                <button class="confirm-button" onclick="submitFeedback()">Enviar Feedback</button>
+                <button class="cancel-button" onclick="fecharFeedbackModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="customAlertModal" class="modal">
+        <div class="modal-content">
+            <h2 id="customAlertTitle"></h2>
+            <p id="customAlertMessage"></p>
+            <div class="button-group">
+                <button class="confirm-button" id="customAlertConfirmBtn">OK</button>
+                <button class="cancel-button oculto" id="customAlertCancelBtn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
